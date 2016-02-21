@@ -45,25 +45,10 @@ var templator = (function() {
         }
     };
 
-    Template.prototype.setParent = function(parent) {
-        this.parent = parent;
-        for (var i = 0; i < this.nodes.length; ++i) {
-            this.nodes.parent = parent;
-        }
-    };
-
     Template.prototype.render = function(context, element) {
-        element = element || this.parent;
         if (element) {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
             for (var i = 0; i < this.nodes.length; ++i) {
-                var node = this.nodes[i];
-                var nodes = node.render(context);
-                for (var j = 0; j < nodes.length; ++j) {
-                    element.appendChild(nodes[j]);
-                }
+                this.nodes[i].render(context);
             }
         }
         else {
@@ -90,25 +75,35 @@ var templator = (function() {
         for (var i = 0; i < attrs.length; ++i) {
             this.attrs.push([attrs[i][0], new String_(attrs[i][1])]);
         }
+
+        this.context_name = null;
     };
 
-    BaseNode.prototype.appendChild = function(child) {
+    BaseNode.prototype.appendChild = function(child, stop) {
+        if (stop === undefined) {
+            stop = false;
+        }
         this.children.push(child);
         child.position = this.children.length;
         child.parent = this.element;
         if (child.element !== undefined) {
             this.element.appendChild(child.element);
         }
-        if (child.elements !== undefined) {
-            for (var i = 0; i < child.elements.length; ++i) {
-                this.element.appendChild(child.elements[i]);
+        if (child.isTemplateNode && !stop) {
+            child.template.parent = this.element;
+            for (var i = 0; i < child.template.nodes.length; ++i) {
+                this.appendChild(child.template.nodes[i], true);
+                child.template.nodes[i].context_name = child.context_name;
             }
         }
         return this;
     };
 
     BaseNode.prototype.render = function(context) {
-        console.log("BaseNode", context);
+        if (this.context_name !== null) {
+            context = context[this.context_name];
+        }
+        console.log("BaseNode", context, this.context_name);
         for (var i = 0; i < this.attrs.length; ++i) {
             var attr_name = this.attrs[i][0];
             var attr_value = this.attrs[i][1].render(context);
@@ -128,9 +123,13 @@ var templator = (function() {
         this.string = new String_(text);
         this.parent = null;
         this.position = 0;
+        this.context_name = null;
     };
 
     TextNode.prototype.render = function(context) {
+        if (this.context_name !== null) {
+            context = context[this.context_name];
+        }
         console.log("TextNode", context);
         this.element.textContent = this.string.render(context);
         if (this.parent === null) {
@@ -142,32 +141,22 @@ var templator = (function() {
         console.log("TemplateNode", template);
         this.template = template;
         this.parent = null;
-        this.context_name = context_name;
-        this.children_init_parent = false;
-        this.elements = [];
-        for (var i = 0; i < this.template.nodes.length; ++i) {
-            var node = this.template.nodes[i];
-            if (node.element !== undefined) {
-                this.elements.push(node.element);
-            }
+        if (context_name === undefined) {
+            this.context_name = null;
         }
+        else {
+            this.context_name = context_name;
+        }
+        this.isTemplateNode = true;
     };
 
     TemplateNode.prototype.render = function(context) {
-        console.log(this.context_name)
-        if (this.context_name !== undefined) {
-            context = context[this.context_name];
-        }
-        console.log("TemplateNode", context);
+        console.log("TemplateNode (context)", context);
         if (this.parent === null) {
             return this.template.render(context);
         }
         else {
-            if (!this.children_init_parent) {
-                this.template.setParent(this.parent);
-                this.children_init_parent = true;
-            }
-            this.template.render(context);
+            this.template.render(context, true);
         }
     };
 
@@ -178,10 +167,14 @@ var templator = (function() {
         this.parent = null;
         this.position = 0;
         this.elements_to_clean = [];
+        this.context_name = null;
     };
 
     ForNode.prototype.render = function(context) {
-        console.log("ForNode", context);
+        if (this.context_name !== null) {
+            context = context[this.context_name];
+        }
+        console.log("ForNode", context, this.list_name);
         // clean parent's children
         if (this.parent !== null) {
             for (var i = 0; i < this.elements_to_clean.length; ++i) {

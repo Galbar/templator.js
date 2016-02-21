@@ -43,20 +43,36 @@ var json = {
     "bicycle": {
         "color": "red",
         "price": 19.95,
-        "available": true
-    },
-    "a" : { "category": "fiction",
-        "author": "J. R. R. Tolkien",
-        "title": "The Lord of the Rings",
-        "isbn": "0-395-19395-8",
-        "price": 22.99,
-        "available": false
+        "available": true,
+        "a" : { "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99,
+            "available": false
+        }
     }
 };
 
+var bike = {
+        "color": "red",
+        "price": 19.95,
+        "available": true,
+        "a" : { "category": "fiction",
+            "author": "J. R. R. Tolkien",
+            "title": "The Lord of the Rings",
+            "isbn": "0-395-19395-8",
+            "price": 22.99,
+            "available": false
+        }
+    };
+
 function onload() {
     d = document.getElementById("a");
-    Store.render(json, d);
+    var elements = Store.render(json);
+    for (var i in elements) {
+        d.appendChild(elements[i]);
+    }
 }
 
 </script>
