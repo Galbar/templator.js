@@ -1,0 +1,13 @@
+<templator version="0.0.1">
+<?def Item>
+    <li>{{value}}</li>
+<?enddef>
+<?def List>
+    <ul>
+        <li>{{value}}</li>
+        <?for list>
+            <?template Item>
+        <?endfor>
+    </ul>
+<?enddef>
+</templator>

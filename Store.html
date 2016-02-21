@@ -1,0 +1,22 @@
+<templator version="0.0.1">
+<?def Book>
+<div class="book-{{available}}">
+    <h3>{{title}}, by {{author}}</h3>
+    <strong>Category:</strong>{{category}}<br/>
+    <strong>Price:</strong>{{price}}<br/>
+</div>
+<?enddef>
+<?def Bike>
+<div class="bicycle">
+    <h3>Bicycle</h3>
+    <strong>Color:</strong>{{color}}<br/>
+    <strong>Price:</strong>{{price}}<br/>
+</div>
+<?enddef>
+<?def Store>
+    <h1>Store</h1>
+    <h2>Books</h2>
+    <?for book Book>
+    <?template Bike bicycle>
+<?enddef>
+</templator>
