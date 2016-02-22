@@ -1,9 +1,19 @@
 <html>
 <head>
     <style type="text/css" media="screen">
-.class {
-    border-left: 2px gray solid;
-}
+    div {
+        border-left: 2px gray solid;
+        padding-left: 2px;
+    }
+    .section {
+        background-color: cyan;
+    }
+    .book-1 {
+        background-color: green;
+    }
+    .book-false {
+        color: gray;
+    }
     </style>
 </head>
 <body onload="onload()">
@@ -69,7 +79,8 @@ var bike = {
 
 function onload() {
     d = document.getElementById("a");
-    var elements = Store.render(json);
+
+    var elements = Store().render(json);
     for (var i in elements) {
         d.appendChild(elements[i]);
     }

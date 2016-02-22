@@ -79,31 +79,31 @@ var templator = (function() {
         this.context_name = null;
     };
 
-    BaseNode.prototype.appendChild = function(child, stop) {
-        if (stop === undefined) {
-            stop = false;
+    BaseNode.prototype.appendChild = function(child, append) {
+        if (append === undefined || append) {
+            this.children.push(child);
         }
-        this.children.push(child);
         child.position = this.children.length;
         child.parent = this.element;
         if (child.element !== undefined) {
             this.element.appendChild(child.element);
         }
-        if (child.isTemplateNode && !stop) {
+        if (child.isTemplateNode) {
             child.template.parent = this.element;
-            for (var i = 0; i < child.template.nodes.length; ++i) {
-                this.appendChild(child.template.nodes[i], true);
-                child.template.nodes[i].context_name = child.context_name;
+            for (var i in child.template.nodes) {
+                if (child.template.nodes[i].element !== undefined) {
+                    this.element.appendChild(child.template.nodes[i].element);
+                }
+                else if (child.template.nodes[i].isTemplateNode) {
+                    this.appendChild(child.template.nodes[i], false);
+                }
             }
         }
         return this;
     };
 
     BaseNode.prototype.render = function(context) {
-        if (this.context_name !== null) {
-            context = context[this.context_name];
-        }
-        console.log("BaseNode", context, this.context_name);
+        console.log("BaseNode", context);
         for (var i = 0; i < this.attrs.length; ++i) {
             var attr_name = this.attrs[i][0];
             var attr_value = this.attrs[i][1].render(context);
@@ -151,7 +151,11 @@ var templator = (function() {
     };
 
     TemplateNode.prototype.render = function(context) {
-        console.log("TemplateNode (context)", context);
+        console.log(context);
+        if (this.context_name !== null) {
+            context = context[this.context_name];
+        }
+        console.log("TemplateNode (context)", context, this);
         if (this.parent === null) {
             return this.template.render(context);
         }

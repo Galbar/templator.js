@@ -86,7 +86,10 @@ class Templator(HTMLParser):
         self.next("END", "text")
 
     def startBaseNode(self, tag, attrs):
-        self.startNodeBootstrap("templator.BaseNode('%s', %s)" % (tag, json.dumps(attrs)))
+        if attrs:
+            self.startNodeBootstrap("templator.BaseNode('%s', %s)" % (tag, json.dumps(attrs)))
+        else:
+            self.startNodeBootstrap("templator.BaseNode('%s')" % tag)
 
 
     def endBaseNode(self):
@@ -100,14 +103,13 @@ class Templator(HTMLParser):
         if template not in self.templates:
             raise Exception("Template '%s' not defined." % template)
 
-        self.startNodeBootstrap("templator.TemplateNode(%s, %s)" % (template, context_name))
+        self.startNodeBootstrap("templator.TemplateNode(%s(), %s)" % (template, context_name))
 
     def endTemplateNode(self):
-        print("->>>>>>>>>>>>>", self.stack)
         self.endNodeBootstrap()
 
     def startForNode(self, list_name, template):
-        self.startNodeBootstrap("templator.ForNode(%s, %s)" % (template, json.dumps(list_name)))
+        self.startNodeBootstrap("templator.ForNode(%s(), %s)" % (template, json.dumps(list_name)))
 
     def endForNode(self):
         self.endNodeBootstrap()
@@ -117,21 +119,21 @@ class Templator(HTMLParser):
             raise Exception("Template %s is already defined." % name)
 
         self.template_names.append(name)
-        self.templates[name] = "var %s = templator.Template([" % name
+        self.templates[name] = "templator.Template(["
         self.current_template = name
         self.current_template_count = 0
 
     def endTemplate(self):
         name = self.current_template
-        self.templates[name] += "]);\n"
+        self.templates[name] += "]);"
         if self.stack[-1] == "templator":
             self.templates[name] = """var %s = (function(templator) {
-%s
+return function() {
 return %s;
+}
 })(templator);""" % (
         name,
-        self.templates[name],
-        name)
+        self.templates[name])
 
     def startNodeBootstrap(self, part):
         template = ""

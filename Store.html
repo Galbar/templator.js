@@ -2,21 +2,27 @@
 <?def Book>
 <div class="book-{{available}}">
     <h3>{{title}}, by {{author}}</h3>
-    <strong>Category:</strong>{{category}}<br/>
-    <strong>Price:</strong>{{price}}<br/>
+    <strong>Category: </strong>{{category}}<br/>
+    <strong>Price: </strong>{{price}}<br/>
 </div>
 <?enddef>
 <?def Bike>
 <div class="bicycle">
-    <h3>Bicycle</h3>
-    <strong>Color:</strong>{{color}}<br/>
-    <strong>Price:</strong>{{price}}<br/>
+    <h2>Bicycle</h2>
+    <strong>Color: </strong>{{color}}<br/>
+    <strong>Price: </strong>{{price}}<br/>
+    <?template Book a>
 </div>
+    <?template Book a>
 <?enddef>
 <?def Store>
-    <h1>Store</h1>
+<h1>Store</h1>
+<div class="section">
+    <?template Bike bicycle>
+</div>
+<div class="section">
     <h2>Books</h2>
     <?for book Book>
-    <?template Bike bicycle>
+</div>
 <?enddef>
 </templator>
